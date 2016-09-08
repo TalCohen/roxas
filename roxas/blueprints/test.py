@@ -29,4 +29,12 @@ def display():
     template_args['body'] = "This is a test page"
     template_args['name'] = test.name
     template_args['created'] = test.datetime_created
+    print(request.headers)
+    print(request.headers.get('REMOTE_USER'))
     return render_template('test.html', **template_args)
+
+@test_bp.route('/test/post', methods=['POST'])
+def testpost():
+    print(request.form)
+    print(request.form.get("test"))
+    return "ok"
