@@ -20,3 +20,5 @@ def ldap_init(ro, ldap_url, bind_dn, bind_pw, user_ou, group_ou, committee_ou):
     print(ldap_conn)
     #ldap_conn.search(user_search_ou, "(uid=bencentra)", attributes=ALL_ATTRIBUTES)
     #print(ldap_conn.entries)
+    #ldap_conn.search(group_search_ou, "(cn=*)", attributes=['cn'])
+    #print(ldap_conn.entries[0].cn)

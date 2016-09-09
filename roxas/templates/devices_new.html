@@ -1,0 +1,51 @@
+{% extends "nav.html" %}
+{% block title %}New Device{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form action="{{ url_for('device_bp.create') }}" method="post">
+                <div class="form-group">
+                    <label for="device-name">Device Name</label>
+                    <input required type="text" name="name" class="form-control" id="device-name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label for="device-desc">Device Description</label>
+                    <input required type="text" name="description" class="form-control" id="device-desc" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label for="device-owners">Device Owners</label>
+                    <select multiple name="device_owners" class="form-control selectpicker" id="device-owners">
+                        <optgroup label="Groups">
+                            <option value="tala">Tala</option>
+                            <option value="talb">Talb</option>
+                        </optgroup>
+                        <optgroup label="Users">
+                            <option value="talc">Talc</option>
+                            <option value="tald">Tald</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-allowed">Allowed Users</label>
+                    <select multiple name="allowed_users" class="form-control selectpicker" id="device-allowed">
+                        <optgroup label="Groups">
+                            <option value="tala">Tala</option>
+                            <option value="talb">Talb</option>
+                        </optgroup>
+                        <optgroup label="Users">
+                            <option value="talc">Talc</option>
+                            <option value="tald">Tald</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-attribs">Required Attributes</label>
+                    <input required type="text" name="required_attributes" class="form-control" id="device-attribs" placeholder="Required Attributes">
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

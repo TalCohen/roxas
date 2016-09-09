@@ -12,8 +12,10 @@ migrate = Migrate(app, db)
 logger = structlog.get_logger()
 
 from roxas.blueprints.test import test_bp
+from roxas.blueprints.device import device_bp
 
 app.register_blueprint(test_bp)
+app.register_blueprint(device_bp)
 
 @app.route('/', methods=['GET'])
 def index():
