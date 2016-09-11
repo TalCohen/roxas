@@ -2,6 +2,51 @@
 {% block title %}Device #{% endblock %}
 {% block body %}
 <div class="container">
-    Device #
+    <div class="page-header">
+        <h3>{{ device.name }}</h3>
+    </div>
+
+    <div class="panel">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>Device Name</th>
+                    <td>{{ device.name }}</td>
+                </tr>
+                <tr>
+                    <th>Device Description</th>
+                    <td>{{ device.description|empty_string_text }}</td>
+                </tr>
+                <tr>
+                    <th>Device Owners - Users</th>
+                    <td>{{ device_owners_users|empty_string_text }}</td>
+                </tr>
+                <tr>
+                    <th>Device Owners - Groups</th>
+                    <td>{{ device_owners_groups|empty_string_text }}</td>
+                </tr>
+                <tr>
+                    <th>Accessible By - Users</th>
+                    <td>{{ accessible_by_users|empty_string_text }}</td>
+                </tr>
+                <tr>
+                    <th>Accessible By - Groups</th>
+                    <td>{{ accessible_by_groups|empty_string_text }}</td>
+                </tr>
+                <tr>
+                    <th>Created By</th>
+                    <td>{{ created_by }}</td>
+                </tr>
+                <tr>
+                    <th>Enabled?</th>
+                    {% if device['enabled'] %}
+                    <td>Yes</td>
+                    {% else %}
+                    <td>No</td>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

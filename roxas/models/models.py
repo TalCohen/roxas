@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime
 
@@ -24,15 +24,22 @@ class Device(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(64), nullable=False)
     description = Column(String(500), nullable=False)
+    created_by = Column(String(64), nullable=False)
     api_key = Column(String(64), nullable=False, unique=True)
-    device_owners = Column(ARRAY(String()), nullable=False)
-    allowed_users = Column(ARRAY(String()))
-    returned_attributes = Column(ARRAY(String()))
+    device_owners_users = Column(ARRAY(String()))
+    device_owners_groups = Column(ARRAY(String()))
+    accessible_by_users = Column(ARRAY(String()))
+    accessible_by_groups = Column(ARRAY(String()))
+    enabled = Column(Boolean, default=True)
 
-    def __init__(self, name, description, api_key, device_owners, allowed_users=None, returned_attributes=None):
+    def __init__(self, name, description, created_by, api_key, device_owners_users, device_owners_groups, accessible_by_users, accessible_by_groups):
         self.name = name
         self.description = description
+        self.created_by = created_by
         self.api_key = api_key
-        self.device_owners = device_owners
-        self.allowed_users = allowed_users
-        self.returned_attributes = returned_attributes
+        self.device_owners_users = device_owners_users
+        self.device_owners_groups = device_owners_groups
+        self.accessible_by_users = accessible_by_users
+        self.accessible_by_groups = accessible_by_groups
+        enabled = True
+

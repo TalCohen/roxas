@@ -2,6 +2,42 @@
 {% block title %}My Devices{% endblock %}
 {% block body %}
 <div class="container">
-    My Devices
+    <div class="page-header">
+        <h3>Owned Devices</h3>
+    </div>
+    {% if devices|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Device Name</th>
+                    <th>Enabled?</th>
+                </tr>
+            </thead>
+            {% for device in devices %}
+                <tr>
+                    <td class="device" data-device-id="{{ device['id'] }}"><a href="{{ url_for('device_bp.show', device_id=device['id']) }}">{{ device['name'] }}</a></td>
+                    {% if device['enabled'] %}
+                    <td>
+                        <span class="glyphicon glyphicon-ok"></span> Yes
+                        <form action="{{ url_for('device_bp.update', device_id=device['id']) }}" method="patch">
+                            <button type="submit" class="btn btn-danger">Disable</button>
+                        </form>
+                    </td>
+                    {% else %}
+                    <td>
+                        <span class="glyphicon glyphicon-remove"></span> No
+                        <form action="{{ url_for('device_bp.update', device_id=device['id']) }}" method="patch">
+                            <button type="submit" class="btn btn-success">Enable</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> You have no owned devices.</div>
+    {% endif %}
 </div>
 {% endblock %}

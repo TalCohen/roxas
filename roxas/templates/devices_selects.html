@@ -1,0 +1,25 @@
+{% macro selects(human_name, row_id, select_name) -%}
+    <label for="{{ row_id }}">{{ human_name }}</label>
+    <div id="{{ row_id }}" class="row">
+        <div class="col-xs-3">
+            <div class="form-group">
+                <label for="{{ row_id }}-users">Users</label>
+                <select multiple name="{{ select_name }}_users" class="form-control selectpicker" id="{{ row_id }}-users" title="Select users..." data-live-search="true">
+                    {% for user in ldap_users %}
+                        <option value="{{ user['entryUUID'] }}">{{ user['uid'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-3">
+            <div class="form-group">
+                <label for="{{ row_id }}-groups">Groups</label>
+                <select multiple name="{{ select_name }}_groups" class="form-control selectpicker" id="{{ row_id }}-groups" title="Select groups..." data-live-search="true">
+                    {% for group in ldap_groups %}
+                        <option value="{{ group['cn'] }}">{{ group['cn'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+{%- endmacro %}
