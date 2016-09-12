@@ -1,12 +1,12 @@
-{% macro selects(human_name, row_id, select_name) -%}
+{% macro selects(human_name, row_id, select_name, user_dict, group_dict) -%}
     <label for="{{ row_id }}">{{ human_name }}</label>
     <div id="{{ row_id }}" class="row">
         <div class="col-xs-3">
             <div class="form-group">
                 <label for="{{ row_id }}-users">Users</label>
-                <select multiple name="{{ select_name }}_users" class="form-control selectpicker" id="{{ row_id }}-users" title="Select users..." data-live-search="true">
+                <select multiple name="{{ select_name }}_users" class="form-control selectpicker" id="{{ row_id }}-users" title="Select users..." data-live-search="true" data-size="5">
                     {% for user in ldap_users %}
-                        <option value="{{ user['entryUUID'] }}">{{ user['uid'] }}</option>
+                    <option value="{{ user['entryUUID'] }}"{% if user_dict[user['entryUUID']] %} selected="selected"{% endif %}>{{ user['uid'] }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -16,7 +16,7 @@
                 <label for="{{ row_id }}-groups">Groups</label>
                 <select multiple name="{{ select_name }}_groups" class="form-control selectpicker" id="{{ row_id }}-groups" title="Select groups..." data-live-search="true">
                     {% for group in ldap_groups %}
-                        <option value="{{ group['cn'] }}">{{ group['cn'] }}</option>
+                        <option value="{{ group['cn'] }}"{% if group_dict[group['cn']] %} selected="selected"{% endif %}>{{ group['cn'] }}</option>
                     {% endfor %}
                 </select>
             </div>

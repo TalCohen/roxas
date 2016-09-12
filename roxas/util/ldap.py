@@ -43,7 +43,6 @@ def ldap_get_users_by_uuids(uuids, returned_attributes):
     for uuid in uuids:
         filter += '(entryUUID=%s)' % uuid
     filter += ')'
-    print(filter)
 
     ldap_conn.search(user_search_ou, filter, attributes=returned_attributes)
     return ldap_conn.entries
@@ -58,6 +57,9 @@ def ldap_get_all_groups(returned_attributes):
 def ldap_get_users_by_fields(fields, returned_attributes):
     ldap_conn.search(user_search_ou, fields, attributes=returned_attributes)
     return ldap_conn.entries
+
+def ldap_get_all_users(returned_attributes):
+    return ldap_get_users_by_fields("(uid=*)", returned_attributes)
 
 def ldap_get_all_active_users(returned_attributes):
     return ldap_get_users_by_fields("(active=1)", returned_attributes)

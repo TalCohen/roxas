@@ -12,6 +12,10 @@ def row_to_dict(row):
 
     return d
 
+def update_row_from_dict(row, d):
+    for key in d.keys():
+        setattr(row, key, d[key])
+
 def ldap_to_dict(ldap):
     d = {}
     for attr in ldap._attributes:
@@ -22,9 +26,19 @@ def ldap_to_dict(ldap):
 def ldap_list_to_string_list(ldap_list, attr):
     return [ldap[attr].value for ldap in ldap_list]
 
+def list_to_dict(l):
+    return dict((i, True) for i in l)
+
 @app.template_filter('empty_string_text')
 def empty_string_text(s):
     if s == "":
         return "None"
     else:
         return s
+
+@app.template_filter('none_to_empty')
+def none_to_empty(s):
+    if s is None:
+        return ""
+    else:
+       return s

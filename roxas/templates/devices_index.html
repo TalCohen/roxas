@@ -1,43 +1,40 @@
 {% extends "nav.html" %}
 {% block title %}My Devices{% endblock %}
 {% block body %}
-<div class="container">
-    <div class="page-header">
-        <h3>Owned Devices</h3>
-    </div>
-    {% if devices|length > 0 %}
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Device Name</th>
-                    <th>Enabled?</th>
-                </tr>
-            </thead>
-            {% for device in devices %}
+<div class="page-header">
+    <h3>Owned Devices</h3>
+</div>
+{% if devices|length > 0 %}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Enabled?</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for device in devices %}
+            <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
                 <tr>
                     <td class="device" data-device-id="{{ device['id'] }}"><a href="{{ url_for('device_bp.show', device_id=device['id']) }}">{{ device['name'] }}</a></td>
                     {% if device['enabled'] %}
+                    <td>Yes</td>
                     <td>
-                        <span class="glyphicon glyphicon-ok"></span> Yes
-                        <form action="{{ url_for('device_bp.update', device_id=device['id']) }}" method="patch">
-                            <button type="submit" class="btn btn-danger">Disable</button>
-                        </form>
+                        <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Disable</button>
                     </td>
                     {% else %}
+                    <td>No</td>
                     <td>
-                        <span class="glyphicon glyphicon-remove"></span> No
-                        <form action="{{ url_for('device_bp.update', device_id=device['id']) }}" method="patch">
-                            <button type="submit" class="btn btn-success">Enable</button>
-                        </form>
+                        <button type="submit" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-ok"></span> Enable</button>
                     </td>
                     {% endif %}
                 </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% else %}
-        <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> You have no owned devices.</div>
-    {% endif %}
+            </form>
+        {% endfor %}
+    </table>
 </div>
+{% else %}
+    <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> You have no owned devices.</div>
+{% endif %}
 {% endblock %}

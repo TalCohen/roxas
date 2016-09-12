@@ -17,7 +17,13 @@
 
     <body>
         {% block nav %}{% endblock %}
-        {% block body %}{% endblock %}
+
+        <div class="container">
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> {{ message }}</div>
+            {% endfor %}
+            {% block body %}{% endblock %}
+        </div>
 
         <script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
         <script src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>

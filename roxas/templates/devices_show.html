@@ -1,52 +1,72 @@
 {% extends "nav.html" %}
-{% block title %}Device #{% endblock %}
+{% block title %}{{ device.name }}{% endblock %}
 {% block body %}
-<div class="container">
-    <div class="page-header">
-        <h3>{{ device.name }}</h3>
-    </div>
+<div class="page-header">
+    <h3>{{ device.name }}</h3>
+    <a class="btn btn-warning" href="{{ url_for('device_bp.edit', device_id=device.id) }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Remove</button>
+</div>
 
-    <div class="panel">
-        <div class="table-responsive">
-            <table class="table">
-                <tr>
-                    <th>Device Name</th>
-                    <td>{{ device.name }}</td>
-                </tr>
-                <tr>
-                    <th>Device Description</th>
-                    <td>{{ device.description|empty_string_text }}</td>
-                </tr>
-                <tr>
-                    <th>Device Owners - Users</th>
-                    <td>{{ device_owners_users|empty_string_text }}</td>
-                </tr>
-                <tr>
-                    <th>Device Owners - Groups</th>
-                    <td>{{ device_owners_groups|empty_string_text }}</td>
-                </tr>
-                <tr>
-                    <th>Accessible By - Users</th>
-                    <td>{{ accessible_by_users|empty_string_text }}</td>
-                </tr>
-                <tr>
-                    <th>Accessible By - Groups</th>
-                    <td>{{ accessible_by_groups|empty_string_text }}</td>
-                </tr>
-                <tr>
-                    <th>Created By</th>
-                    <td>{{ created_by }}</td>
-                </tr>
-                <tr>
-                    <th>Enabled?</th>
-                    {% if device['enabled'] %}
-                    <td>Yes</td>
-                    {% else %}
-                    <td>No</td>
-                    {% endif %}
-                </tr>
-            </table>
-        </div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <th>Device Name</th>
+                <td>{{ device.name }}</td>
+            </tr>
+            <tr>
+                <th>Device Description</th>
+                <td>{{ device.description|empty_string_text }}</td>
+            </tr>
+            <tr>
+                <th>Device Owners - Users</th>
+                <td>{{ device.device_owners_users|empty_string_text }}</td>
+            </tr>
+            <tr>
+                <th>Device Owners - Groups</th>
+                <td>{{ device.device_owners_groups|empty_string_text }}</td>
+            </tr>
+            <tr>
+                <th>Accessible By - Users</th>
+                <td>{{ device.accessible_by_users|empty_string_text }}</td>
+            </tr>
+            <tr>
+                <th>Accessible By - Groups</th>
+                <td>{{ device.accessible_by_groups|empty_string_text }}</td>
+            </tr>
+            <tr>
+                <th>Created By</th>
+                <td>{{ device.created_by }}</td>
+            </tr>
+            <tr>
+                <th>Enabled?</th>
+                {% if device.enabled %}
+                <td>Yes</td>
+                {% else %}
+                <td>No</td>
+                {% endif %}
+            </tr>
+        </table>
     </div>
 </div>
+
+<form action="{{ url_for('device_bp.delete', device_id=device.id) }}" method="post">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">{{ device.name }}</h4>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete {{ device.name }}?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</form>
 {% endblock %}

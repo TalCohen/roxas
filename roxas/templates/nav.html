@@ -3,14 +3,23 @@
 <nav class="navbar navbar-inverse">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/"></a>
+            <a class="navbar-brand" href="/">Gravity</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('device_bp.index') }}">My Devices</a></li>
+                <li><a href="{{ url_for('device_bp.index') }}"><span class="glyphicon glyphicon-phone"></span> My Owned Devices</a></li>
+                <li><a href="#"><span class="glyphicon glyphicon-eye-open"></span> My Accessible Devices</a></li>
+                <li><a href="{{ url_for('device_bp.new') }}"><span class="glyphicon glyphicon-plus-sign"></span> Register A Device</a></li>
+
+                <!--<li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-phone"></span> Devices <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('device_bp.index') }}"><span class="glyphicon glyphicon-tasks"></span> My Owned Devices</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-eye-open"></span> My Accessible Devices</a></li>
+                    <li><a href="{{ url_for('device_bp.new') }}"><span class="glyphicon glyphicon-plus-sign"></span> Register A Device</a></li>
+                </ul>-->
             </ul>
         </div>
     </div>
 </nav>
-
 {% endblock %}
