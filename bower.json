@@ -18,6 +18,7 @@
   "dependencies": {
     "csh-material-bootstrap": "^1.0.0",
     "bootstrap": "^3.3.7",
-    "bootstrap-select": "^1.11.0"
+    "bootstrap-select": "^1.11.0",
+    "selectize": "^0.12.3"
   }
 }

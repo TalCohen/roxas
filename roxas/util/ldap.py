@@ -33,16 +33,21 @@ def ldap_get_user_by_uuid(uuid, returned_attributes):
     ldap_conn.search(user_search_ou, "(entryUUID=%s)" % uuid, attributes=returned_attributes)
     return ldap_conn.entries[0] if len(ldap_conn.entries) else None
 
+def build_filter(attrs, attr_name):
+    # Build the filter that matches any of the uuids
+    filter = '(|'
+    for attr in attrs:
+        filter += '(%s=%s)' % (attr_name, attr)
+    filter += ')'
+
+    return filter
+
 def ldap_get_users_by_uuids(uuids, returned_attributes):
     # If we received no uuids, return emtpy array
     if len(uuids) == 0:
         return []
 
-    # Build the filter that matches any of the uuids
-    filter = '(|'
-    for uuid in uuids:
-        filter += '(entryUUID=%s)' % uuid
-    filter += ')'
+    filter = build_filter(uuids, 'entryUUID')
 
     ldap_conn.search(user_search_ou, filter, attributes=returned_attributes)
     return ldap_conn.entries

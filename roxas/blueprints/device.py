@@ -7,7 +7,7 @@ from sqlalchemy.sql import or_
 
 from roxas.models.models import Device
 from roxas.util.ldap import ldap_get_user_by_username, ldap_get_user_by_uuid, ldap_get_users_by_uuids, ldap_get_all_groups, ldap_get_all_users, ldap_get_all_active_users, ldap_get_user_groups
-from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict
+from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict, is_admin
 from roxas import db
 
 logger = structlog.get_logger()
@@ -15,7 +15,7 @@ logger = structlog.get_logger()
 device_bp = Blueprint('device_bp', __name__)
 
 @device_bp.before_request
-def get_users():
+def get_user_info():
     # Get the username
     username = request.headers.get('REMOTE_USER')
 
@@ -28,10 +28,13 @@ def get_users():
         user = ldap_get_user_by_username(username, ['entryUUID'])
         session['uuid'] = user.entryUUID.value
 
+        # Check to see if the user is an admin or not
+        session['is_admin'] = is_admin(session['username'])
+
 def get_owned_devices(username, uuid):
     # Get the user groups
     user_groups = ldap_get_user_groups(username, ['cn'])
-    user_groups = [group.cn.value for group in user_groups]
+    user_groups = ldap_list_to_string_list(user_groups, 'cn')
 
      # By default it uses text[], so explicity cast to a varchar[]
     user = cast([uuid], ARRAY(String()))
@@ -42,21 +45,41 @@ def get_owned_devices(username, uuid):
 
     return devices
 
-def can_view_device(username, uuid, device):
-    # if the user is an owner, the user can view it
+def is_device_owner(username, uuid, device):
+    # If the user is an owner, return true
     if uuid in device.device_owners_users:
         return True
 
     # Get the user groups
     user_groups = ldap_get_user_groups(username, ['cn'])
     user_groups = ldap_list_to_string_list(user_groups, 'cn')
-    #user_groups = [group.cn.value for group in user_groups]
 
-    # If the two groups are not disjoint, the user can view it
+    # If the two groups are not disjoint, the user is an owner
     if not set(user_groups).isdisjoint(device.device_owners_groups):
         return True
 
     return False
+
+def is_accessible_by(username, uuid, device):
+    # If the user can access it, return true
+    if uuid in device.accessible_by_users:
+        return True
+
+    # Get the user groups
+    user_groups = ldap_get_user_groups(username, ['cn'])
+    user_groups = ldap_list_to_string_list(user_groups, 'cn')
+
+    # If the two groups are not disjoint, the user can access it
+    if not set(user_groups).isdisjoint(device.accessible_by_groups):
+        return True
+
+    return False
+
+def has_owner_rights(username, uuid, device):
+    return session['is_admin'] or is_device_owner(username, uuid, device)
+
+def has_access(username, uuid, device):
+    return session['is_admin'] or is_accessible_by(username, uuid, device)
 
 def get_people_csv(users, attr):
     # Get the usernames
@@ -127,8 +150,12 @@ def get_form_context(device_context, title, action, submit_button_str, device_ow
 
 @device_bp.route('/devices', methods=['GET'])
 def index():
-    # Get the owned devices for the user
-    devices = get_owned_devices(session['username'], session['uuid'])
+    if session['is_admin']:
+        # Get all the devices
+        devices = Device.query.order_by(Device.name).all()
+    else:
+        # Get the owned devices for the user
+        devices = get_owned_devices(session['username'], session['uuid'])
 
     # Map the rows to a list of dictionaries
     device_dicts = [row_to_dict(device) for device in devices]
@@ -184,7 +211,7 @@ def show(device_id):
     device = Device.query.get(device_id)
 
     # Make sure the user is allowed to view this device
-    if device is None or not can_view_device(session['username'], session['uuid'], device):
+    if device is None or not has_owner_rights(session['username'], session['uuid'], device):
         return redirect(url_for('device_bp.index'))
    
     # Get the device context
@@ -199,7 +226,7 @@ def edit(device_id):
     device = Device.query.get(device_id)
 
     # Make sure the user is allowed to view this device
-    if device is None or not can_view_device(session['username'], session['uuid'], device):
+    if device is None or not has_owner_rights(session['username'], session['uuid'], device):
         return redirect(url_for('device_bp.index'))
 
     # Get the device context
@@ -230,7 +257,7 @@ def update(device_id):
     device = Device.query.get(device_id)
 
     # Make sure the user is allowed to view this device
-    if device is None or not can_view_device(session['username'], session['uuid'], device):
+    if device is None or not has_owner_rights(session['username'], session['uuid'], device):
         return redirect(url_for('device_bp.index'))
 
     # Retrieve the form values
@@ -260,7 +287,7 @@ def delete(device_id):
     device = Device.query.get(device_id)
 
     # Make sure the user is allowed to view this device
-    if device is None or not can_view_device(session['username'], session['uuid'], device):
+    if device is None or not has_owner_rights(session['username'], session['uuid'], device):
         return redirect(url_for('device_bp.index'))
 
     name = device.name
@@ -278,7 +305,7 @@ def toggle_enabled(device_id):
     device = Device.query.get(device_id)
 
     # Make sure the user is allowed to view this device
-    if device is None or not can_view_device(session['username'], session['uuid'], device):
+    if device is None or not has_owner_rights(session['username'], session['uuid'], device):
         return redirect(url_for('device_bp.index'))
     
     device.enabled = not device.enabled
