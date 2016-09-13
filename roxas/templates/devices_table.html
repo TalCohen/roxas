@@ -1,0 +1,48 @@
+{% macro table(devices, devices_type, empty_message, size, has_owner_rights) -%}
+<div class="{{ size }}">
+    <div class="page-header">
+        <h3>{{ devices_type }}</h3>
+    </div>
+    {% if devices|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Device Name</th>
+                    <th>Enabled?</th>
+                    {% if has_owner_rights %}
+                        <th></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            {% for device in devices %}
+                <tr>
+                    <td class="device" data-device-id="{{ device['id'] }}"><a href="{{ url_for('device_bp.show', device_id=device['id']) }}">{{ device['name'] }}</a></td>
+                    {% if device['enabled'] %}
+                        <td>Yes</td>
+                        {% if has_owner_rights %} 
+                            <td>
+                                <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Disable</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    {% else %}
+                        <td>No</td>
+                        {% if has_owner_rights %} 
+                            <td>
+                                <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-ok"></span> Enable</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> {{ empty_message }}</div>
+    {% endif %}
+</div>
+{%- endmacro %}
