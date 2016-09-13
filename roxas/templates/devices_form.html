@@ -16,8 +16,8 @@
                 <input required type="text" name="description" class="form-control" id="device-desc" placeholder="Description" value="{{ device.get('description')|none_to_empty }}">
             </div>
             {% import "devices_selects.html" as ds with context %}
-            {{ ds.selects("Device Owners: (Leave empty for current user only)", "device-owners", "device_owners", device_owners_users_dict, device_owners_groups_dict) }}
-            {{ ds.selects("Accessible By: (Leave empty for all users)", "accessible-by", "accessible_by", accessible_by_users_dict, accessible_by_groups_dict) }}
+            {{ ds.selects("Device Owners", "device-owners", "device_owners", device_owners_users_dict, device_owners_groups_dict) }}
+            {{ ds.selects("Accessible By", "accessible-by", "accessible_by", accessible_by_users_dict, accessible_by_groups_dict) }}
             <button type="submit" class="btn btn-primary">{{ submit_button_str }}</button>
         </form>
     </div>

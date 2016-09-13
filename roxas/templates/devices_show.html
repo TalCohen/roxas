@@ -3,8 +3,10 @@
 {% block body %}
 <div class="page-header">
     <h3>{{ device.name }}</h3>
-    <a class="btn btn-warning" href="{{ url_for('device_bp.edit', device_id=device.id) }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Remove</button>
+    {% if has_owner_rights %}
+        <a class="btn btn-warning" href="{{ url_for('device_bp.edit', device_id=device.id) }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Remove</button>
+    {% endif %}
 </div>
 
 <div class="panel">
@@ -34,6 +36,12 @@
                 <th>Accessible By - Groups</th>
                 <td>{{ device.accessible_by_groups|empty_string_text }}</td>
             </tr>
+            {% if has_owner_rights %}
+            <tr>
+                <th>API Key</th>
+                <td>{{ device.api_key }}</td>
+            </tr>
+            {% endif %}
             <tr>
                 <th>Created By</th>
                 <td>{{ device.created_by }}</td>

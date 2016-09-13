@@ -1,40 +1,11 @@
 {% extends "nav.html" %}
 {% block title %}My Devices{% endblock %}
 {% block body %}
-<div class="page-header">
-    <h3>Owned Devices</h3>
-</div>
-{% if devices|length > 0 %}
-<div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Device Name</th>
-                <th>Enabled?</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for device in devices %}
-            <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
-                <tr>
-                    <td class="device" data-device-id="{{ device['id'] }}"><a href="{{ url_for('device_bp.show', device_id=device['id']) }}">{{ device['name'] }}</a></td>
-                    {% if device['enabled'] %}
-                    <td>Yes</td>
-                    <td>
-                        <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Disable</button>
-                    </td>
-                    {% else %}
-                    <td>No</td>
-                    <td>
-                        <button type="submit" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-ok"></span> Enable</button>
-                    </td>
-                    {% endif %}
-                </tr>
-            </form>
-        {% endfor %}
-    </table>
-</div>
+{% import "devices_table.html" as dt %}
+{% if admin_devices %}
+    {{ dt.table(admin_devices, "All Devices - Admin", "There are no devices registered.", "col-sm-12", True) }}
 {% else %}
-    <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> You have no owned devices.</div>
+    {{ dt.table(owned_devices, "Owned Devices", "You have no owned devices.", "col-sm-6", True) }}
+    {{ dt.table(accessible_devices, "Accessible Devices", "You have no accessible devices.", "col-sm-6", False) }}
 {% endif %}
 {% endblock %}
