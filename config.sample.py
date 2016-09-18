@@ -16,3 +16,7 @@ LDAP_COMMITTEE_OU = 'ou=Committees,dc=csh,dc=rit,dc=edu'
 
 # Database config
 SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(os.getcwd(), "data.db"))
+
+# App config
+ADMIN_USERS = ['1337man', '3cool5me']
+ADMIN_GROUPS = ['rtp']

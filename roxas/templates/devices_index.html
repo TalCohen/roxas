@@ -1,0 +1,11 @@
+{% extends "nav.html" %}
+{% block title %}My Devices{% endblock %}
+{% block body %}
+{% import "devices_table.html" as dt %}
+{% if admin_devices %}
+    {{ dt.table(admin_devices, "All Devices - Admin", "There are no devices registered.", "col-sm-12", True) }}
+{% else %}
+    {{ dt.table(owned_devices, "Owned Devices", "You have no owned devices.", "col-sm-6", True) }}
+    {{ dt.table(accessible_devices, "Accessible Devices", "You have no accessible devices.", "col-sm-6", False) }}
+{% endif %}
+{% endblock %}

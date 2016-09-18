@@ -5,3 +5,6 @@ __pycache__/
 
 # Sensitive project files
 config.py
+
+# Bower components
+bower_components

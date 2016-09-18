@@ -1,0 +1,28 @@
+{% macro selects(human_name, row_id, select_name, user_dict, group_dict) -%}
+    <label for="{{ row_id }}">{{ human_name }}</label>
+    <div id="{{ row_id }}" class="row">
+        <div class="col-xs-3">
+            <div class="form-group">
+                <label for="{{ row_id }}-users">Users</label>
+                <select multiple name="{{ select_name }}_users" class="form-control selectize" id="{{ row_id }}-users" title="Select users..." data-live-search="true" data-size="5">
+                    {% if row_id == "accessible-by" %}
+                        <option value="{{ all_users }}"{% if user_dict[all_users] or not device %} selected="selected"{% endif %}>{{ all_users_str }}</option>
+                    {% endif %}
+                    {% for user in ldap_users %}
+                        <option value="{{ user['entryUUID'] }}"{% if user_dict[user['entryUUID']] or (user['entryUUID'] == uuid and row_id == "device-owners" and not device) %} selected="selected"{% endif %}>{{ user['uid'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-3">
+            <div class="form-group">
+                <label for="{{ row_id }}-groups">Groups</label>
+                <select multiple name="{{ select_name }}_groups" class="form-control selectize" id="{{ row_id }}-groups" title="Select groups..." data-live-search="true">
+                    {% for group in ldap_groups %}
+                        <option value="{{ group['cn'] }}"{% if group_dict[group['cn']] %} selected="selected"{% endif %}>{{ group['cn'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+{%- endmacro %}

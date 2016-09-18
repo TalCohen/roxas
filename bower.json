@@ -1,0 +1,24 @@
+{
+  "name": "roxas",
+  "homepage": "https://github.com/TalCohen/roxas",
+  "authors": [
+    "Tal Cohen <tcohen123@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "csh-material-bootstrap": "^1.0.0",
+    "bootstrap": "^3.3.7",
+    "bootstrap-select": "^1.11.0",
+    "selectize": "^0.12.3"
+  }
+}
