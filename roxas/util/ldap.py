@@ -25,13 +25,22 @@ def ldap_init(ro, ldap_url, bind_dn, bind_pw, user_ou, group_ou, committee_ou):
     #ldap_conn.search(user_search_ou, "(uid=bencentra)", attributes=['uid', 'entryUUID'])
     #entry = ldap_conn.entries[0]
 
-def ldap_get_user_by_username(uid, returned_attributes):
-    ldap_conn.search(user_search_ou, "(uid=%s)" % uid, attributes=returned_attributes)
+def ldap_get_user(filter, returned_attributes):
+    ldap_conn.search(user_search_ou, filter, attributes=returned_attributes)
     return ldap_conn.entries[0] if len(ldap_conn.entries) else None
 
+def ldap_get_user_by_username(uid, returned_attributes):
+    return ldap_get_user("(uid=%s)" % uid, returned_attributes)
+
 def ldap_get_user_by_uuid(uuid, returned_attributes):
-    ldap_conn.search(user_search_ou, "(entryUUID=%s)" % uuid, attributes=returned_attributes)
-    return ldap_conn.entries[0] if len(ldap_conn.entries) else None
+    return ldap_get_user("(entryUUID=%s)" % uuid, returned_attributes)
+
+def ldap_get_user_by_ibutton(nfc, returned_attributes):
+    return ldap_get_user("(ibutton=%s)" % nfc, returned_attributes)
+
+def ldap_get_user_by_nfc(nfc, returned_attributes):
+    # Currently there is no NFC attribute in LDAP, so ibutton is used here too.
+    return ldap_get_user("(ibutton=%s)" % nfc, returned_attributes)
 
 def build_filter(attrs, attr_name):
     # Build the filter that matches any of the uuids

@@ -9,6 +9,9 @@
             <ul class="nav navbar-nav">
                 <li><a href="{{ url_for('device_bp.index') }}"><span class="glyphicon glyphicon-phone"></span> My Devices</a></li>
                 <li><a href="{{ url_for('device_bp.new') }}"><span class="glyphicon glyphicon-plus-sign"></span> Register A Device</a></li>
+                {% if is_admin %}
+                    <li><a href="{{ url_for('device_bp.all') }}"><span class="glyphicon glyphicon-asterisk"></span> All Devices</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>

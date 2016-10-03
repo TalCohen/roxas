@@ -43,3 +43,20 @@ class Device(db.Model):
         self.accessible_by_groups = accessible_by_groups
         enabled = True
 
+class NFC(db.Model):
+    __tablename__ = "nfcs"
+
+    id = Column(Integer, primary_key=True)
+    serial_number = Column(String(64), nullable=False, unique=True)
+    current_rolling_key = Column(String(64), nullable=False)
+    next_rolling_key = Column(String(64))
+    old_rolling_key = Column(String(64))
+    verified = Column(Boolean, default=True)
+    enabled = Column(Boolean, default=True)
+
+    def __init__(self, serial_number, rolling_key):
+        self.serial_number = serial_number
+        self.current_rolling_key = rolling_key
+        verified = True
+        enabled = True
+

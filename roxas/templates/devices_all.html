@@ -1,0 +1,6 @@
+{% extends "nav.html" %}
+{% block title %}All Devices{% endblock %}
+{% block body %}
+{% import "devices_table.html" as dt %}
+{{ dt.table(devices, "All Devices - Admin", "There are no devices registered.", "col-sm-12", True, "all") }}
+{% endblock %}
