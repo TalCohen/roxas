@@ -1,9 +1,18 @@
 # Flask config
 DEBUG = True
 HOST_NAME = 'localhost'
+SERVER_NAME = 'localhost:5000'
 APP_NAME = 'roxas'
 IP = '0.0.0.0'
 PORT = 5000
+SECRET_KEY = "thisisnotsecure"
+
+# OpenID Connect SSO config
+OIDC_ISSUER = 'https://sso.csh.rit.edu/realms/csh'
+OIDC_CLIENT_CONFIG = {
+    'client_id': 'gravity',
+    'client_secret': 'secretkey'
+}
 
 # LDAP config
 LDAP_RO = True

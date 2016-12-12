@@ -1,7 +1,8 @@
 import structlog
 from datetime import datetime
-
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, json
+from roxas.util.ldap import ldap_get_user_by_username 
+from roxas.util.utils import ldap_to_dict
 
 from roxas.models.models import Test
 from roxas import db
@@ -36,5 +37,9 @@ def display():
 @test_bp.route('/test/post', methods=['POST'])
 def testpost():
     print(request.form)
-    print(request.form.get("test"))
+    print(request.form.get('testname'))
+
+    #user = ldap_get_user_by_username('tcohen', request.json.get('attrs'))
+    #return json.dumps(ldap_to_dict(user))
+    
     return "ok"

@@ -1,4 +1,4 @@
-{% macro table(devices, devices_type, empty_message, size, has_owner_rights) -%}
+{% macro table(devices, devices_type, empty_message, size, has_owner_rights, route) -%}
 <div class="{{ size }}">
     <div class="page-header">
         <h3>{{ devices_type }}</h3>
@@ -23,7 +23,7 @@
                         {% if has_owner_rights %} 
                             <td>
                                 <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
-                                    <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Disable</button>
+                                    <button type="submit" name="route" value="{{ route }}" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Disable</button>
                                 </form>
                             </td>
                         {% endif %}
@@ -32,7 +32,7 @@
                         {% if has_owner_rights %} 
                             <td>
                                 <form action="{{ url_for('device_bp.toggle_enabled', device_id=device['id']) }}" method="post">
-                                    <button type="submit" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-ok"></span> Enable</button>
+                                    <button type="submit" name="route" value="{{ route }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-ok"></span> Enable</button>
                                 </form>
                             </td>
                         {% endif %}

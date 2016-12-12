@@ -1,14 +1,14 @@
 import structlog
 
-from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash, g
 from sqlalchemy import cast, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import or_
 
 from roxas.models.models import Device
 from roxas.util.ldap import ldap_get_user_by_username, ldap_get_user_by_uuid, ldap_get_users_by_uuids, ldap_get_all_groups, ldap_get_all_users, ldap_get_all_active_users, ldap_get_user_groups
-from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict, is_admin
-from roxas import db
+from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict, is_admin, is_accessible_by, get_all_users_id, get_all_users_str
+from roxas import db, auth
 
 # Get the logger
 logger = structlog.get_logger()
@@ -16,14 +16,13 @@ logger = structlog.get_logger()
 # Create the blueprint
 device_bp = Blueprint('device_bp', __name__)
 
-# Set the ALL_USERS values
-ALL_USERS = "-1"
-ALL_USERS_STR = "*All Users*"
-
 @device_bp.before_request
+#@auth.oidc_auth
 def get_user_info():
     # Get the username
     username = request.headers.get('REMOTE_USER')
+    #username = g.userinfo.get('preferred_username')
+    #uuid = g.userinfo.get('uuid')
 
     # If the uuid isn't set or the usernames are not the same, set the correct values
     if not session.get('uuid') or not session.get('username') == username:
@@ -33,9 +32,19 @@ def get_user_info():
         # Get the user's uuid and store it 
         user = ldap_get_user_by_username(username, ['entryUUID'])
         session['uuid'] = user.entryUUID.value
+        #session['uuid'] = uuid
 
         # Check to see if the user is an admin or not
         session['is_admin'] = is_admin(session['username'])
+
+def get_context():
+    # Create the context with some default values
+    context = {}
+    context['username'] = session['username']
+    context['uuid'] = session['uuid']
+    context['is_admin'] = session['is_admin']
+
+    return context
 
 def get_user_devices(username, uuid):
     # Get the user groups
@@ -49,8 +58,8 @@ def get_user_devices(username, uuid):
     # Get the devices where there are device_owners/accessible_by in common
     owned_devices = Device.query.filter(or_(Device.device_owners_users.contains(user), Device.device_owners_groups.overlap(user_groups))).order_by(Device.name).all()
 
-    # Add the ALL_USERS option
-    user = cast([ALL_USERS, uuid], ARRAY(String()))
+    # Add the get_all_users_id() option
+    user = cast([get_all_users_id(), uuid], ARRAY(String()))
     accessible_devices = Device.query.filter(or_(Device.accessible_by_users.overlap(user), Device.accessible_by_groups.overlap(user_groups))).order_by(Device.name).all()
 
     return (owned_devices, accessible_devices)
@@ -66,21 +75,6 @@ def is_device_owner(username, uuid, device):
 
     # If the two groups are not disjoint, the user is an owner
     if not set(user_groups).isdisjoint(device.device_owners_groups):
-        return True
-
-    return False
-
-def is_accessible_by(username, uuid, device):
-    # If the user can access it, return true
-    if not set([ALL_USERS, uuid]).isdisjoint(device.accessible_by_users):
-        return True
-
-    # Get the user groups
-    user_groups = ldap_get_user_groups(username, ['cn'])
-    user_groups = ldap_list_to_string_list(user_groups, 'cn')
-
-    # If the two groups are not disjoint, the user can access it
-    if not set(user_groups).isdisjoint(device.accessible_by_groups):
         return True
 
     return False
@@ -109,9 +103,9 @@ def get_device_context(device):
     accessible_by_users = ldap_get_users_by_uuids(device.accessible_by_users, ['uid'])
     accessible_by_users_str = get_people_csv(accessible_by_users, 'uid')
 
-    # If ALL_USERS is in accessible users, add it to the string
-    if ALL_USERS in device.accessible_by_users:
-        accessible_by_users_str = ALL_USERS_STR + (", " if len(accessible_by_users_str) > 0 else "") + accessible_by_users_str
+    # If get_all_users_id() is in accessible users, add it to the string
+    if get_all_users_id() in device.accessible_by_users:
+        accessible_by_users_str = get_all_users_str() + (", " if len(accessible_by_users_str) > 0 else "") + accessible_by_users_str
 
     # Format the names of the groups
     device_owners_groups = string_list_to_sorted_csv(device.device_owners_groups)
@@ -145,8 +139,8 @@ def get_form_context(
         device_owners_users_dict,
         device_owners_groups_dict,
         accessible_by_users_dict,
-        accessible_by_groups_dict,
-        uuid):
+        accessible_by_groups_dict):
+
     # Get the sorted ldap groups
     ldap_groups = ldap_get_all_groups(['cn'])
     ldap_groups_dicts = [ldap_to_dict(group) for group in ldap_groups]
@@ -168,10 +162,10 @@ def get_form_context(
         'device_owners_groups_dict': device_owners_groups_dict,
         'accessible_by_users_dict': accessible_by_users_dict,
         'accessible_by_groups_dict': accessible_by_groups_dict,
-        'uuid': uuid,
-        'all_users': ALL_USERS,
-        'all_users_str': ALL_USERS_STR,
+        'all_users': get_all_users_id(),
+        'all_users_str': get_all_users_str(),
     }
+    form_context.update(get_context())
 
     return form_context
 
@@ -192,31 +186,34 @@ def validate_fields(d):
 
 @device_bp.route('/devices', methods=['GET'])
 def index():
-    # Initiliaze the lists
-    admin_device_dicts = []
-    owned_device_dicts = []
-    accessible_device_dicts = []
+    # Get the devices for the user
+    (owned_devices, accessible_devices) = get_user_devices(session['username'], session['uuid'])
 
-    if session['is_admin']:
-        # Get all the devices
-        admin_devices = Device.query.order_by(Device.name).all()
+    # Map the rows to a list of dictionaries
+    owned_device_dicts = [row_to_dict(device) for device in owned_devices]
+    accessible_device_dicts = [row_to_dict(device) for device in accessible_devices]
 
-        # Map the rows to a list of dictionaries
-        admin_device_dicts = [row_to_dict(device) for device in admin_devices]
-    else:
-        # Get the devices for the user
-        (owned_devices, accessible_devices) = get_user_devices(session['username'], session['uuid'])
-
-        # Map the rows to a list of dictionaries
-        owned_device_dicts = [row_to_dict(device) for device in owned_devices]
-        accessible_device_dicts = [row_to_dict(device) for device in accessible_devices]
-
-    context = {}
-    context['admin_devices'] = admin_device_dicts
+    context = get_context()
     context['owned_devices'] = owned_device_dicts
     context['accessible_devices'] = accessible_device_dicts
 
     return render_template("devices_index.html", **context)
+
+@device_bp.route('/devices/all', methods=['GET'])
+def all():
+    # If the user isn't an admin, redirect
+    if not session['is_admin']:
+        return redirect(url_for('device_bp.index'))
+
+    # Get all the devices
+    devices = Device.query.order_by(Device.name).all()
+
+    # Map the rows to a list of dictionaries
+    device_dicts = [row_to_dict(device) for device in devices]
+
+    context = get_context()
+    context['devices'] = device_dicts
+    return render_template("devices_all.html", **context)
 
 @device_bp.route('/devices/new', methods=['GET'])
 def new():
@@ -229,8 +226,7 @@ def new():
         {},
         {},
         {},
-        {},
-        session['uuid'])
+        {})
     return render_template("devices_form.html", **context)
 
 @device_bp.route('/devices', methods=['POST'])
@@ -280,7 +276,7 @@ def show(device_id):
     # Get the device context
     device_context = get_device_context(device)
 
-    context = {}
+    context = get_context()
     context['device'] = device_context
     context['has_owner_rights'] = owner_rights
     return render_template("devices_show.html", **context)
@@ -313,8 +309,7 @@ def edit(device_id):
         device_owners_users_dict,
         device_owners_groups_dict,
         accessible_by_users_dict,
-        accessible_by_groups_dict,
-        session['uuid'])
+        accessible_by_groups_dict)
     return render_template("devices_form.html", **context)
 
 @device_bp.route('/devices/<device_id>', methods=['POST'])
@@ -378,4 +373,5 @@ def toggle_enabled(device_id):
     action = "enabled" if device.enabled else "disabled"
     flash("Successfully %s device %s" % (action, device.name))
 
-    return redirect(url_for('device_bp.index'))
+    route = 'device_bp.%s' % request.form.get('route')
+    return redirect(url_for(route))
