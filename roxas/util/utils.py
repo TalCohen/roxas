@@ -23,7 +23,7 @@ def update_row_from_dict(row, d):
 
 def ldap_to_dict(ldap):
     d = {}
-    for attr in ldap._attributes:
+    for attr in ldap.entry_attributes:
         d[attr] = str(ldap[attr].values[0])
     
     return d

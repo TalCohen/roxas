@@ -1,3 +1,6 @@
+import os
+import signal
+
 import structlog
 
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash, g
@@ -8,7 +11,7 @@ from sqlalchemy.sql import or_
 from roxas.models.models import Device
 from roxas.util.ldap import ldap_get_user_by_username, ldap_get_user_by_uuid, ldap_get_users_by_uuids, ldap_get_all_groups, ldap_get_all_users, ldap_get_all_active_users, ldap_get_user_groups
 from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict, is_admin, is_accessible_by, get_all_users_id, get_all_users_str
-from roxas import db, auth
+from roxas import db
 
 # Get the logger
 logger = structlog.get_logger()
@@ -17,22 +20,19 @@ logger = structlog.get_logger()
 device_bp = Blueprint('device_bp', __name__)
 
 @device_bp.before_request
-#@auth.oidc_auth
 def get_user_info():
     # Get the username
-    username = request.headers.get('REMOTE_USER')
-    #username = g.userinfo.get('preferred_username')
-    #uuid = g.userinfo.get('uuid')
+    username = request.headers.get('x-webauth-user')
 
     # If the uuid isn't set or the usernames are not the same, set the correct values
     if not session.get('uuid') or not session.get('username') == username:
         # Store the user's username
         session['username'] = username
+        print(username)
 
         # Get the user's uuid and store it 
         user = ldap_get_user_by_username(username, ['entryUUID'])
         session['uuid'] = user.entryUUID.value
-        #session['uuid'] = uuid
 
         # Check to see if the user is an admin or not
         session['is_admin'] = is_admin(session['username'])
@@ -229,7 +229,7 @@ def new():
         {})
     return render_template("devices_form.html", **context)
 
-@device_bp.route('/devices', methods=['POST'])
+@device_bp.route('/', methods=['POST'])
 def create():
     # Retrieve the form values
     fields = {
@@ -247,8 +247,12 @@ def create():
     # Generate an api_key for the device
     api_key = generate_api_key()
 
+    # Fill the rest of the fields
+    fields['created_by'] = session['uuid']
+    fields['api_key'] = api_key
+
     # Create the device
-    device = Device(**fields, created_by=session['uuid'], api_key=api_key)
+    device = Device(**fields)
     db.session.add(device)
     db.session.commit()
 
@@ -375,3 +379,14 @@ def toggle_enabled(device_id):
 
     route = 'device_bp.%s' % request.form.get('route')
     return redirect(url_for(route))
+
+@device_bp.route('/restart', methods=['GET'])
+def restart_app():
+    # If an admin, restart the app
+    if session['is_admin']:
+        logger.info('api', action='restart app')
+        os.kill(os.getpid(), signal.SIGINT)
+
+        flash("Successfully restarted application.")
+
+    return redirect(url_for('device_bp.index'))
