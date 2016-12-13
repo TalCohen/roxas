@@ -38,8 +38,3 @@ from roxas.blueprints.auth import auth_bp
 app.register_blueprint(test_bp)
 app.register_blueprint(device_bp)
 app.register_blueprint(auth_bp)
-
-@app.route('/', methods=['GET'])
-def index():
-    logger.info("Connected to index page.")
-    return render_template('index.html')

@@ -184,7 +184,7 @@ def validate_fields(d):
     if len(d['accessible_by_users']) + len(d['accessible_by_groups']) == 0:
         d['accessible_by_users'] = [session['uuid']]
 
-@device_bp.route('/devices', methods=['GET'])
+@device_bp.route('/', methods=['GET'])
 def index():
     # Get the devices for the user
     (owned_devices, accessible_devices) = get_user_devices(session['username'], session['uuid'])
