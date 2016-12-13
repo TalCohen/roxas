@@ -1,0 +1,10 @@
+Flask
+itsdangerous
+Jinja2
+ldap3
+SQLAlchemy
+Werkzeug
+structlog
+flask_sqlalchemy
+flask_migrate
+psycopg2
