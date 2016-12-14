@@ -35,12 +35,12 @@ def ldap_get_user_by_username(uid, returned_attributes):
 def ldap_get_user_by_uuid(uuid, returned_attributes):
     return ldap_get_user("(entryUUID=%s)" % uuid, returned_attributes)
 
-def ldap_get_user_by_ibutton(nfc, returned_attributes):
-    return ldap_get_user("(ibutton=%s)" % nfc, returned_attributes)
+def ldap_get_user_by_ibutton(ibutton, returned_attributes):
+    return ldap_get_user("(&(ibutton=*%s)(!(ibutton=x*)))" % ibutton, returned_attributes)
 
 def ldap_get_user_by_nfc(nfc, returned_attributes):
     # Currently there is no NFC attribute in LDAP, so ibutton is used here too.
-    return ldap_get_user("(ibutton=%s)" % nfc, returned_attributes)
+    return ldap_get_user("(&(ibutton=*%s)(!(ibutton=x*)))" % nfc, returned_attributes)
 
 def build_filter(attrs, attr_name):
     # Build the filter that matches any of the uuids
