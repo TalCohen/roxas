@@ -259,7 +259,7 @@ def create():
 
     flash("Successfully created device %s" % fields['name'])
 
-    return redirect(url_for('device_bp.index'))
+    return redirect(url_for('device_bp.show', device_id=device.id))
 
 @device_bp.route('/devices/<device_id>', methods=['GET'])
 def show(device_id):
