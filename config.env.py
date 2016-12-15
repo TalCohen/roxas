@@ -6,7 +6,7 @@ HOST_NAME = os.environ.get("ROXAS_HOST_NAME", 'roxas.csh.rit.edu')
 SERVER_NAME = os.environ.get("ROXAS_SERVER_NAME", 'roxas.csh.rit.edu')
 APP_NAME = os.environ.get("ROXAS_APP_NAME", 'roxas')
 IP = os.environ.get("ROXAS_IP", '0.0.0.0')
-PORT = int(os.environ.get("ROXAS_PORT", '8080'))
+PORT = os.environ.get("ROXAS_PORT", '8080')
 SECRET_KEY = os.environ.get("ROXAS_SECRET_KEY", "")
 
 # OpenID Connect SSO config
