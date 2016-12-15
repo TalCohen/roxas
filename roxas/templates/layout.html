@@ -28,7 +28,7 @@
 
         <div class="container">
             {% for message in get_flashed_messages() %}
-                <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> {{ message }}</div>
+                <div class="alert alert-info page-header" role="alert"><span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span> {{ message }}</div>
             {% endfor %}
             {% block body %}{% endblock %}
         </div>
