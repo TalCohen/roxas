@@ -41,3 +41,12 @@ from roxas.blueprints.auth import auth_bp
 
 app.register_blueprint(device_bp)
 app.register_blueprint(auth_bp)
+
+@app.route('/logout')
+@auth.oidc_logout
+def logout():
+    session['username'] = None
+    session['uuid'] = None
+    session['is_admin'] = None
+
+    return redirect(url_for('index'), 302)

@@ -42,6 +42,7 @@ def get_context():
     context = {}
     context['username'] = session['username']
     context['uuid'] = session['uuid']
+    context['display_name'] = session['userinfo'].get('name', 'CSH Member'))
     context['is_admin'] = session['is_admin']
 
     return context
