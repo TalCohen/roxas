@@ -20,19 +20,23 @@ logger = structlog.get_logger()
 device_bp = Blueprint('device_bp', __name__)
 
 @device_bp.before_request
-@auth.oidc_auth
+#@auth.oidc_auth
 def get_user_info():
     # Get the username
-    username = session['userinfo'].get('preferred_username', '')
-    uuid = session['userinfo'].get('sub', '')
+    #username = session['userinfo'].get('preferred_username', '')
+    #uuid = session['userinfo'].get('sub', '')
+    username = request.headers.get('x-webauth-user')
 
     # If the uuid isn't set or the usernames are not the same, set the correct values
-    if not session.get('uuid') == uuid or not session.get('username') == username:
+    #if not session.get('uuid') == uuid or not session.get('username') == username:
+    if not session.get('uuid') or not session.get('username') == username:
         # Store the user's username
         session['username'] = username
 
         # Get the user's uuid and store it 
-        session['uuid'] = uuid
+        user = ldap_get_user_by_username(username, ['entryUUID'])
+        session['uuid'] = user.entryUUID.value
+        #session['uuid'] = uuid
 
         # Check to see if the user is an admin or not
         session['is_admin'] = is_admin(session['username'])
@@ -42,7 +46,7 @@ def get_context():
     context = {}
     context['username'] = session['username']
     context['uuid'] = session['uuid']
-    context['display_name'] = session['userinfo'].get('name', 'CSH Member')
+    context['display_name'] = "WEBAUTH_USER"#session['userinfo'].get('name', 'CSH Member')
     context['is_admin'] = session['is_admin']
 
     return context
