@@ -1,7 +1,7 @@
 import os
 import requests
 
-from flask import Flask, render_template, session
+from flask import Flask, render_template, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
@@ -49,4 +49,4 @@ def logout():
     session['uuid'] = None
     session['is_admin'] = None
 
-    return redirect(url_for('index'), 302)
+    return redirect(url_for('device_bp.index'), 302)
