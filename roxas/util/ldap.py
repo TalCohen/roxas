@@ -1,4 +1,4 @@
-from ldap3 import Server, Connection, ALL, ALL_ATTRIBUTES
+from ldap3 import Server, Connection, ALL, ALL_ATTRIBUTES, RESTARTABLE
 
 # Global state is gross. I'm sorry.
 ldap_conn = None
@@ -15,15 +15,7 @@ def ldap_init(ro, ldap_url, bind_dn, bind_pw, user_ou, group_ou, committee_ou):
     committee_search_ou = committee_ou
     
     server = Server(ldap_url, use_ssl=True, get_info=ALL)
-    ldap_conn = Connection(server, bind_dn, bind_pw, auto_bind=True)
-
-    print(ldap_conn)
-    #ldap_conn.search(group_search_ou, "(member:=uid=tcohen,ou=Users,dc=csh,dc=rit,dc=edu)", attributes=['cn'])
-    #print(ldap_conn.entries)
-    #ldap_conn.search(group_search_ou, "(cn=*)", attributes=['cn'])
-    #print(ldap_conn.entries[0].cn)
-    #ldap_conn.search(user_search_ou, "(uid=bencentra)", attributes=['uid', 'entryUUID'])
-    #entry = ldap_conn.entries[0]
+    ldap_conn = Connection(server, bind_dn, bind_pw, auto_bind=True, client_strategy=RESTARTABLE)
 
 def ldap_get_user(filter, returned_attributes):
     ldap_conn.search(user_search_ou, filter, attributes=returned_attributes)
