@@ -1,7 +1,7 @@
 import os
 import requests
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
