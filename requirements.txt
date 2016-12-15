@@ -7,4 +7,6 @@ Werkzeug
 structlog
 flask_sqlalchemy
 flask_migrate
+Flask_pyoidc
 psycopg2
+gunicorn
