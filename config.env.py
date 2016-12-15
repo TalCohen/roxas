@@ -13,7 +13,8 @@ SECRET_KEY = os.environ.get("ROXAS_SECRET_KEY", "")
 OIDC_ISSUER = os.environ.get("ROXAS_OIDC_ISSUER", 'https://sso.csh.rit.edu/realms/csh')
 OIDC_CLIENT_CONFIG = {
     'client_id': os.environ.get("ROXAS_CLIENT_ID", 'roxas'),
-    'client_secret': os.environ.get("ROXAS_CLIENT_SECRET", 'secretkey')
+    'client_secret': os.environ.get("ROXAS_CLIENT_SECRET", 'secretkey'),
+    'post_logout_redirect_uris': [os.environ.get('ROXAS_OIDC_LOGOUT_REDIRECT_URI', 'https://roxas.csh.rit.edu/logout')]
 }
 
 # LDAP config

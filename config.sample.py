@@ -11,7 +11,8 @@ SECRET_KEY = "thisisnotsecure"
 OIDC_ISSUER = 'https://sso.csh.rit.edu/realms/csh'
 OIDC_CLIENT_CONFIG = {
     'client_id': 'gravity',
-    'client_secret': 'secretkey'
+    'client_secret': 'secretkey',
+    'post_logout_redirect_uris': ['localhost/logout']
 }
 
 # LDAP config
