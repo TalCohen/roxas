@@ -16,7 +16,6 @@ if os.path.exists(os.path.join(os.getcwd(), "config.py")):
 else:
     app.config.from_pyfile(os.path.join(os.getcwd(), "config.env.py"))
 
-app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Disable SSL certificate verification warning
