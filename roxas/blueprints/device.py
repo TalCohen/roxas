@@ -11,7 +11,7 @@ from sqlalchemy.sql import or_
 from roxas.models.models import Device
 from roxas.util.ldap import ldap_get_user_by_username, ldap_get_user_by_uuid, ldap_get_users_by_uuids, ldap_get_all_groups, ldap_get_all_users, ldap_get_all_active_users, ldap_get_user_groups
 from roxas.util.utils import generate_api_key, row_to_dict, update_row_from_dict, ldap_to_dict, ldap_list_to_string_list, list_to_dict, is_admin, is_accessible_by, get_all_users_id, get_all_users_str
-from roxas import db
+from roxas import db, auth
 
 # Get the logger
 logger = structlog.get_logger()
@@ -20,19 +20,19 @@ logger = structlog.get_logger()
 device_bp = Blueprint('device_bp', __name__)
 
 @device_bp.before_request
+@auth.oidc_auth
 def get_user_info():
     # Get the username
-    username = request.headers.get('x-webauth-user')
+    username = session['userinfo'].get('preferred_username', '')
+    uuid = session['userinfo'].get('sub', '')
 
     # If the uuid isn't set or the usernames are not the same, set the correct values
-    if not session.get('uuid') or not session.get('username') == username:
+    if not session.get('uuid') == uuid or not session.get('username') == username:
         # Store the user's username
         session['username'] = username
-        print(username)
 
         # Get the user's uuid and store it 
-        user = ldap_get_user_by_username(username, ['entryUUID'])
-        session['uuid'] = user.entryUUID.value
+        session['uuid'] = uuid
 
         # Check to see if the user is an admin or not
         session['is_admin'] = is_admin(session['username'])
